@@ -5,7 +5,9 @@ export interface Story {
     priority: "low" | "mid" | "high";
     projectId: string;
     createdAt: string;
-    status: "todo" | "done";
+    state: "todo" | "in-progress" | "done";
     ownerId: string;
-  }
-  
+}
+
+export type StoryPriority = "low" | "mid" | "high";
+export type StoryState = "todo" | "in-progress" | "done";

@@ -1,30 +1,29 @@
-import { Project } from "../models/Project";
+export type Project = {
+  id: string;
+  name: string;
+  description: string;
+};
 
-const STORAGE_KEY = "projects";
+const STORAGE_KEY = 'projects';
 
 export class ProjectService {
-  static getAll(): Project[] {
-    const projects = localStorage.getItem(STORAGE_KEY);
-    return projects ? JSON.parse(projects) : [];
+  static getProjects(): Project[] {
+    const data = localStorage.getItem(STORAGE_KEY);
+    return data ? JSON.parse(data) : [];
   }
 
-  static getById(id: string): Project | undefined {
-    return this.getAll().find((project) => project.id === id);
-  }
-
-  static save(project: Project): void {
-    const projects = this.getAll();
-    const index = projects.findIndex((p) => p.id === project.id);
-    if (index !== -1) {
-      projects[index] = project;
-    } else {
-      projects.push(project);
-    }
+  static saveProjects(projects: Project[]) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
   }
 
-  static delete(id: string): void {
-    const projects = this.getAll().filter((project) => project.id !== id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
+  static addProject(project: Project) {
+    const projects = this.getProjects();
+    projects.push(project);
+    this.saveProjects(projects);
+  }
+
+  static deleteProject(id: string) {
+    const projects = this.getProjects().filter(p => p.id !== id);
+    this.saveProjects(projects);
   }
 }

@@ -1,30 +1,41 @@
-import { Story } from "../models/Story";
+export type StoryState = 'todo' | 'doing' | 'done';
 
-const STORAGE_KEY = "stories";
+export type Story = {
+  id: string;
+  name: string;
+  description: string;
+  priority: number;
+  state: StoryState;
+  projectId: string;
+};
+
+const STORAGE_KEY = 'stories';
 
 export class StoryService {
-  static getAll(): Story[] {
-    const stories = localStorage.getItem(STORAGE_KEY);
-    return stories ? JSON.parse(stories) : [];
+  static getStories(): Story[] {
+    const data = localStorage.getItem(STORAGE_KEY);
+    return data ? JSON.parse(data) : [];
   }
 
-  static getByProject(projectId: string): Story[] {
-    return this.getAll().filter((story) => story.projectId === projectId);
-  }
-
-  static save(story: Story): void {
-    const stories = this.getAll();
-    const index = stories.findIndex((s) => s.id === story.id);
-    if (index !== -1) {
-      stories[index] = story;
-    } else {
-      stories.push(story);
-    }
+  static saveStories(stories: Story[]) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(stories));
   }
 
-  static delete(id: string): void {
-    const stories = this.getAll().filter((story) => story.id !== id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(stories));
+  static addStory(story: Story) {
+    const stories = this.getStories();
+    stories.push(story);
+    this.saveStories(stories);
+  }
+
+  static updateStory(updatedStory: Story) {
+    const stories = this.getStories().map(story =>
+      story.id === updatedStory.id ? updatedStory : story
+    );
+    this.saveStories(stories);
+  }
+
+  static deleteStory(id: string) {
+    const stories = this.getStories().filter(story => story.id !== id);
+    this.saveStories(stories);
   }
 }

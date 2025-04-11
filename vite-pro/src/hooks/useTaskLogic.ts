@@ -1,27 +1,47 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { v4 as uuidv4 } from "uuid";
 import { Task } from "../models/Task";
+import { TaskStorage } from "../utils/TaskStorage";
+import { UserSession } from "../utils/UserSession";
 
 export const useTaskLogic = () => {
-    const [tasks, setTasks] = useState<Task[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const user = UserSession.getLoggedUser();
 
-    const createTask = (task: Task) => {
-        setTasks((prev) => [...prev, task]);
+  const loadTasks = () => {
+    setTasks(TaskStorage.getAll());
+  };
+
+  useEffect(() => {
+    loadTasks();
+  }, []);
+
+  const createTask = (taskData: Omit<Task, "id" | "addedAt" | "state">) => {
+    const task: Task = {
+      ...taskData,
+      id: uuidv4(),
+      addedAt: new Date().toISOString(),
+      state: "todo",
     };
 
-    const updateTask = (taskId: string, updatedTask: Partial<Task>) => {
-        setTasks((prev) =>
-            prev.map((task) => task.id === taskId ? { ...task, ...updatedTask } : task)
-        );
-    };
+    TaskStorage.add(task);
+    loadTasks();
+  };
 
-    const deleteTask = (taskId: string) => {
-        setTasks((prev) => prev.filter((task) => task.id !== taskId));
-    };
+  const updateTask = (task: Task) => {
+    TaskStorage.update(task);
+    loadTasks();
+  };
 
-    return {
-        tasks,
-        createTask,
-        updateTask,
-        deleteTask,
-    };
+  const deleteTask = (id: string) => {
+    TaskStorage.delete(id);
+    loadTasks();
+  };
+
+  return {
+    tasks,
+    createTask,
+    updateTask,
+    deleteTask,
+  };
 };

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useProjectLogic } from "./useProjectLogic";
 import { useStoryLogic } from "./useStoryLogic";
 import { useTaskLogic } from "./useTaskLogic";
@@ -5,6 +6,7 @@ import { UserSession } from "../utils/UserSession";
 
 export const useAppLogic = () => {
     const user = UserSession.getLoggedUser();
+    const allUsers = UserSession.getAllUsers();
 
     const {
         projects,
@@ -27,7 +29,7 @@ export const useAppLogic = () => {
         handleAddStory,
         handleChangeStoryState,
         filterStoriesByState,
-    } = useStoryLogic(activeProject);
+    } = useStoryLogic(activeProject?.id || null);
 
     const {
         tasks,
@@ -36,8 +38,11 @@ export const useAppLogic = () => {
         deleteTask,
     } = useTaskLogic();
 
+    const [activeStoryId, setActiveStoryId] = useState<string | null>(null);
+
     return {
         user,
+        allUsers,
         projects,
         activeProject,
         projectName,
@@ -59,5 +64,7 @@ export const useAppLogic = () => {
         createTask,
         updateTask,
         deleteTask,
+        activeStoryId,
+        setActiveStoryId,
     };
 };

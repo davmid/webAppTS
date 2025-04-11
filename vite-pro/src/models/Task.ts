@@ -1,15 +1,15 @@
 export type TaskState = "todo" | "doing" | "done";
 
-export interface Task {
+export type Task = {
   id: string;
-  name: string;                    
-  description: string;             
+  name: string;
+  description: string;
   priority: "low" | "mid" | "high";
-  storyId: string;                 
-  estimatedTime: number;           
-  state: TaskState;                
-  createdAt: string;               
-  startDate?: string;              
-  endDate?: string;                
-  assignedTo: string;             
-}
+  storyId: string;
+  estimatedTime: number;
+  addedAt: string;
+  startedAt?: string;
+  completedAt?: string;
+  assigneeId?: string;
+  state: TaskState;
+};

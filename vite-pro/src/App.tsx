@@ -1,4 +1,4 @@
-import { useAppLogic } from "./hooks/useApplogic";
+import { useAppLogic } from "./hooks/useAppLogic";
 
 function App() {
   const {

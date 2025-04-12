@@ -8,7 +8,7 @@ const ProjectSelector: React.FC = () => {
   const [activeProject, setActiveProject] = useState<string | null>(null);
 
   useEffect(() => {
-    setProjects(ProjectService.getAll());
+    setProjects(ProjectService.getProjects());
     setActiveProject(ActiveProjectService.getActiveProject());
   }, []);
 

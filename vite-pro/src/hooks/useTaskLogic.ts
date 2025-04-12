@@ -1,47 +1,47 @@
-import { useState, useEffect } from "react";
-import { v4 as uuidv4 } from "uuid";
+import { useState } from "react";
 import { Task } from "../models/Task";
-import { TaskStorage } from "../utils/TaskStorage";
-import { UserSession } from "../utils/UserSession";
+import { TaskService } from "../services/TaskService";
+import { v4 as uuidv4 } from "uuid";
 
-export const useTaskLogic = () => {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const user = UserSession.getLoggedUser();
+export const useTaskLogic = (storyId: string | null) => {
+  const [tasks, setTasks] = useState<Task[]>(storyId ? TaskService.getByStory(storyId) : []);
 
-  const loadTasks = () => {
-    setTasks(TaskStorage.getAll());
+  const refresh = () => {
+    if (storyId) {
+      setTasks(TaskService.getByStory(storyId));
+    }
   };
 
-  useEffect(() => {
-    loadTasks();
-  }, []);
-
-  const createTask = (taskData: Omit<Task, "id" | "addedAt" | "state">) => {
-    const task: Task = {
-      ...taskData,
+  const createTask = (name: string, description: string, priority: Task["priority"], estimatedTime: number) => {
+    if (!storyId) return;
+    const newTask: Task = {
       id: uuidv4(),
-      addedAt: new Date().toISOString(),
+      name,
+      description,
+      priority,
+      storyId,
+      estimatedTime,
       state: "todo",
+      addedAt: new Date().toISOString(),
     };
-
-    TaskStorage.add(task);
-    loadTasks();
+    TaskService.add(newTask);
+    refresh();
   };
 
   const updateTask = (task: Task) => {
-    TaskStorage.update(task);
-    loadTasks();
+    TaskService.update(task);
+    refresh();
   };
 
   const deleteTask = (id: string) => {
-    TaskStorage.delete(id);
-    loadTasks();
+    TaskService.delete(id);
+    refresh();
   };
 
   return {
     tasks,
     createTask,
     updateTask,
-    deleteTask,
+    deleteTask
   };
 };

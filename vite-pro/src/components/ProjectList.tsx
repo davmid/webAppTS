@@ -9,7 +9,7 @@ const ProjectList: React.FC = () => {
   const [description, setDescription] = useState("");
 
   useEffect(() => {
-    setProjects(ProjectService.getAll());
+    setProjects(ProjectService.getProjects());
   }, []);
 
   const addProject = () => {
@@ -21,15 +21,15 @@ const ProjectList: React.FC = () => {
       description,
     };
 
-    ProjectService.save(newProject);
-    setProjects(ProjectService.getAll());
+    ProjectService.addProject(newProject);
+    setProjects(ProjectService.getProjects());
     setName("");
     setDescription("");
   };
 
   const deleteProject = (id: string) => {
-    ProjectService.delete(id);
-    setProjects(ProjectService.getAll());
+    ProjectService.deleteProject(id);
+    setProjects(ProjectService.getProjects());
   };
 
   return (

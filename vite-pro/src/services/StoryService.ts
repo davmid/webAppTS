@@ -1,15 +1,6 @@
-export type StoryState = 'todo' | 'doing' | 'done';
+import { Story } from "../models/Story";
 
-export type Story = {
-  id: string;
-  name: string;
-  description: string;
-  priority: number;
-  state: StoryState;
-  projectId: string;
-};
-
-const STORAGE_KEY = 'stories';
+const STORAGE_KEY = "stories";
 
 export class StoryService {
   static getStories(): Story[] {
@@ -37,5 +28,9 @@ export class StoryService {
   static deleteStory(id: string) {
     const stories = this.getStories().filter(story => story.id !== id);
     this.saveStories(stories);
+  }
+
+  static getByProject(projectId: string): Story[] {
+    return this.getStories().filter(story => story.projectId === projectId);
   }
 }

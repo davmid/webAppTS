@@ -1,15 +1,16 @@
 export type TaskState = "todo" | "doing" | "done";
+export type TaskPriority = "low" | "mid" | "high";
 
-export type Task = {
+export interface Task {
   id: string;
   name: string;
   description: string;
-  priority: "low" | "mid" | "high";
+  priority: TaskPriority;
   storyId: string;
   estimatedTime: number;
+  state: TaskState;
   addedAt: string;
   startedAt?: string;
   completedAt?: string;
   assigneeId?: string;
-  state: TaskState;
-};
+}

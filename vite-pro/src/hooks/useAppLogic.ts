@@ -36,7 +36,7 @@ export const useAppLogic = () => {
         createTask,
         updateTask,
         deleteTask,
-    } = useTaskLogic();
+    } = useTaskLogic(null);
 
     const [activeStoryId, setActiveStoryId] = useState<string | null>(null);
 

@@ -9,6 +9,7 @@ const StoryList: React.FC = () => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<"low" | "mid" | "high">("mid");
+
   const activeProject = ActiveProjectService.getActiveProject();
 
   useEffect(() => {
@@ -27,24 +28,36 @@ const StoryList: React.FC = () => {
       priority,
       projectId: activeProject,
       createdAt: new Date().toISOString(),
-      status: "todo",
+      state: "todo",
       ownerId: "1",
     };
 
-    StoryService.save(newStory);
+    StoryService.addStory(newStory);
     setStories(StoryService.getByProject(activeProject));
     setName("");
     setDescription("");
   };
 
   const deleteStory = (id: string) => {
-    StoryService.delete(id);
+    StoryService.deleteStory(id);
     setStories(StoryService.getByProject(activeProject!));
+  };
+
+  const updateStoryState = (story: Story, newState: Story["state"]) => {
+    const updated = { ...story, state: newState };
+    StoryService.updateStory(updated);
+    setStories(StoryService.getByProject(activeProject!));
+  };
+
+  const grouped = {
+    todo: stories.filter(s => s.state === "todo"),
+    inProgress: stories.filter(s => s.state === "in-progress"),
+    done: stories.filter(s => s.state === "done"),
   };
 
   return (
     <div>
-      <h3>History</h3>
+      <h3>Dodaj nową historyjkę</h3>
       <input
         type="text"
         placeholder="Nazwa historyjki"
@@ -57,21 +70,68 @@ const StoryList: React.FC = () => {
         value={description}
         onChange={(e) => setDescription(e.target.value)}
       />
-      <select value={priority} onChange={(e) => setPriority(e.target.value as "low" | "mid" | "high")}>
-        <option value="niski">Low</option>
-        <option value="średni">Mid</option>
-        <option value="wysoki">High</option>
+      <select
+        value={priority}
+        onChange={(e) => setPriority(e.target.value as "low" | "mid" | "high")}
+      >
+        <option value="low">Niski</option>
+        <option value="mid">Średni</option>
+        <option value="high">Wysoki</option>
       </select>
-      <button onClick={addStory}>Add</button>
+      <button onClick={addStory}>Dodaj</button>
 
-      <ul>
-        {stories.map((story) => (
-          <li key={story.id}>
-            {story.name} - {story.description} - {story.priority}
-            <button onClick={() => deleteStory(story.id)}>delete</button>
-          </li>
-        ))}
-      </ul>
+      <hr />
+
+      <div style={{ display: "flex", gap: "40px" }}>
+        {/* TODO */}
+        <div>
+          <h4>📋 Do zrobienia</h4>
+          {grouped.todo.length === 0 && <p>Brak zadań</p>}
+          <ul>
+            {grouped.todo.map((story) => (
+              <li key={story.id}>
+                <strong>{story.name}</strong> - {story.description} [{story.priority}]
+                <br />
+                <button onClick={() => updateStoryState(story, "in-progress")}>
+                  Rozpocznij
+                </button>
+                <button onClick={() => deleteStory(story.id)}>Usuń</button>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* IN PROGRESS */}
+        <div>
+          <h4>🚧 W trakcie</h4>
+          {grouped.inProgress.length === 0 && <p>Brak zadań</p>}
+          <ul>
+            {grouped.inProgress.map((story) => (
+              <li key={story.id}>
+                <strong>{story.name}</strong> - {story.description} [{story.priority}]
+                <br />
+                <button onClick={() => updateStoryState(story, "done")}>Zakończ</button>
+                <button onClick={() => deleteStory(story.id)}>Usuń</button>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* DONE */}
+        <div>
+          <h4>✅ Zrobione</h4>
+          {grouped.done.length === 0 && <p>Brak zadań</p>}
+          <ul>
+            {grouped.done.map((story) => (
+              <li key={story.id}>
+                <strong>{story.name}</strong> - {story.description} [{story.priority}]
+                <br />
+                <button onClick={() => deleteStory(story.id)}>Usuń</button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
     </div>
   );
 };

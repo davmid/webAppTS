@@ -2,7 +2,7 @@ import { Task } from "../models/Task";
 
 const STORAGE_KEY = "tasks";
 
-export class TaskService {
+class TaskService {
   static getAll(): Task[] {
     const data = localStorage.getItem(STORAGE_KEY);
     return data ? JSON.parse(data) : [];
@@ -32,3 +32,5 @@ export class TaskService {
     return this.getAll().filter(t => t.storyId === storyId);
   }
 }
+
+export default TaskService;

@@ -1,54 +1,47 @@
-import { useAppLogic } from "./hooks/useAppLogic";
+import React, { useEffect, useState } from 'react';
+import './App.css';
+import UserProfile from './components/UserProfile';
+import ProjectSelector from './components/ProjectSelector';
+import ProjectList from './components/ProjectList';
+import StoryList from './components/StoryList';
+import TaskKanban from './components/TaskKanban';
+import TaskService from './services/TaskService';
+import { Task } from './models/Task';
 
 function App() {
-  const {
-    user,
-    activeProject,
-    projects,
-    projectName,
-    projectDescription,
-    setProjectName,
-    setProjectDescription,
-    handleAddProject,
-    handleProjectSelect,
-  } = useAppLogic();
+  const [tasks, setTasks] = useState<Task[]>([]);
+
+  useEffect(() => {
+    const allTasks = TaskService.getAll();
+    setTasks(allTasks);
+  }, []);
 
   return (
-    <div>
-      <h1>Projekciki</h1>
-      <p>Zalogowany jako: {user.firstName} {user.lastName} ({user.role})</p>
+    <div style={{ padding: '1rem', fontFamily: 'Arial, sans-serif' }}>
+      <header style={{ marginBottom: '2rem' }}>
+        <h1>ManagMe Dashboard</h1>
+        <UserProfile />
+      </header>
 
-      {!activeProject && (
-        <>
-          <h2>Wybierz lub dodaj projekt</h2>
-          <ul>
-            {projects.map(p => (
-              <li key={p.id}>
-                {p.name} <button onClick={() => handleProjectSelect(p.id)}>Wybierz</button>
-              </li>
-            ))}
-          </ul>
+      <section style={{ marginBottom: '2rem' }}>
+        <h2>Wybierz aktywny projekt</h2>
+        <ProjectSelector />
+      </section>
 
-          <input
-            placeholder="Nazwa projektu"
-            value={projectName}
-            onChange={(e) => setProjectName(e.target.value)}
-          />
-          <input
-            placeholder="Opis"
-            value={projectDescription}
-            onChange={(e) => setProjectDescription(e.target.value)}
-          />
-          <button onClick={handleAddProject}>Dodaj projekt</button>
-        </>
-      )}
+      <section style={{ marginBottom: '2rem' }}>
+        <h2>Lista projektów</h2>
+        <ProjectList />
+      </section>
 
-      {activeProject && (
-        <>
-          <h2>Aktualny projekt: {activeProject.name}</h2>
-          <p>Opis: {activeProject.description}</p>
-        </>
-      )}
+      <section style={{ marginBottom: '2rem' }}>
+        <h2>Historyjki projektu</h2>
+        <StoryList />
+      </section>
+
+      <section>
+        <h2>Tablica zadań (Kanban)</h2>
+        <TaskKanban tasks={tasks} />
+      </section>
     </div>
   );
 }

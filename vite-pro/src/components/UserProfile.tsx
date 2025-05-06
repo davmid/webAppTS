@@ -1,5 +1,5 @@
 import React from "react";
-import { UserService } from "../services/UserService";
+import UserService from "../services/UserService";
 
 const UserProfile: React.FC = () => {
   const user = UserService.getCurrentUser();

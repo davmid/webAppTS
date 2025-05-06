@@ -1,9 +1,18 @@
 import { User } from "../models/User";
 
-export class UserService {
-  private static user: User = { id: "1", firstName: "Jan", lastName: "Kowalski" };
+const mockUsers: User[] = [
+  { id: '1', firstName: 'Magda', lastName: 'Admin', role: 'admin' },
+  { id: '2', firstName: 'Dawid', lastName: 'Dev', role: 'developer' },
+  { id: '3', firstName: 'Olga', lastName: 'Ops', role: 'devops' },
+];
 
-  static getCurrentUser(): User {
-    return this.user;
-  }
-}
+const UserService = {
+  getCurrentUser(): User {
+    return mockUsers[0];
+  },
+  getAll(): User[] {
+    return mockUsers;
+  },
+};
+
+export default UserService;

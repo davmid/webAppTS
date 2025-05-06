@@ -15,7 +15,7 @@ const mockUsers: User[] = [
 
 export class UserSession {
   static getLoggedUser(): User {
-    return mockUsers[0]; // Zalogowany jako admin
+    return mockUsers[0]; 
   }
 
   static getAllUsers(): User[] {

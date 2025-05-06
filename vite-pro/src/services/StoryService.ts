@@ -2,7 +2,7 @@ import { Story } from "../models/Story";
 
 const STORAGE_KEY = "stories";
 
-export class StoryService {
+class StoryService {
   static getStories(): Story[] {
     const data = localStorage.getItem(STORAGE_KEY);
     return data ? JSON.parse(data) : [];
@@ -34,3 +34,5 @@ export class StoryService {
     return this.getStories().filter(story => story.projectId === projectId);
   }
 }
+
+export default StoryService;

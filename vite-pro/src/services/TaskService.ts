@@ -31,6 +31,11 @@ class TaskService {
   static getByStory(storyId: string): Task[] {
     return this.getAll().filter(t => t.storyId === storyId);
   }
+
+  // 🆕 Dodaj to:
+  static getById(id: string): Task | undefined {
+    return this.getAll().find(t => t.id === id);
+  }
 }
 
 export default TaskService;

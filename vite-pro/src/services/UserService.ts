@@ -1,18 +1,28 @@
 import { User } from "../models/User";
 
-const mockUsers: User[] = [
-  { id: '1', firstName: 'Magda', lastName: 'Admin', role: 'admin' },
-  { id: '2', firstName: 'Dawid', lastName: 'Dev', role: 'developer' },
-  { id: '3', firstName: 'Olga', lastName: 'Ops', role: 'devops' },
+const users: User[] = [
+  {
+    id: "1",
+    name: "Admin Magda",
+    email: "admin@example.com",
+    role: "admin",
+  },
+  {
+    id: "2",
+    name: "Dawid Developer",
+    email: "dev@example.com",
+    role: "developer",
+  },
+  {
+    id: "3",
+    name: "Kamil DevOps",
+    email: "devops@example.com",
+    role: "devops",
+  },
 ];
 
-const UserService = {
-  getCurrentUser(): User {
-    return mockUsers[0];
-  },
-  getAll(): User[] {
-    return mockUsers;
-  },
+export const UserService = {
+  getAll: (): User[] => users,
+  getById: (id: string): User | undefined => users.find((u) => u.id === id),
+  getCurrentUser: (): User => users[0], // Mock: zalogowany admin
 };
-
-export default UserService;

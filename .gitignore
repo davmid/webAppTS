@@ -43,3 +43,7 @@ supabase/.dev/
 *.zip
 *.bak
 *.log
+
+# node_modules in subdirectories
+vite-pro/node_modules/
+miniapi/node_modules/

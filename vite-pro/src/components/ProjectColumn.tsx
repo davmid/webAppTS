@@ -1,64 +1,51 @@
-
 import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 
 interface Project {
   id: string;
-  user_id: string;
   name: string;
   description?: string;
 }
 
-export default function ProjectsColumn({
-  onSelectProject,
-}: {
+interface ProjectsColumnProps {
+  userId: string;
   onSelectProject: (id: string) => void;
-}) {
+}
+
+export default function ProjectsColumn({ userId, onSelectProject }: ProjectsColumnProps) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [newName, setNewName] = useState('');
   const [newDesc, setNewDesc] = useState('');
-  const [userId, setUserId] = useState<string | null>(null);
 
   const fetchProjects = async () => {
-    if (!userId) return;
     const { data, error } = await supabase
       .from('projects')
       .select('*')
       .eq('user_id', userId);
+
     if (!error && data) setProjects(data);
   };
-
-  useEffect(() => {
-    const getSession = async () => {
-      const { data, error } = await supabase.auth.getUser();
-      if (!error && data?.user?.id) {
-        setUserId(data.user.id);
-      }
-    };
-    getSession();
-  }, []);
 
   useEffect(() => {
     fetchProjects();
   }, [userId]);
 
   const addProject = async () => {
-    if (!newName.trim() || !userId) return;
+    const { data: sessionData } = await supabase.auth.getUser();
+    const user = sessionData?.user;
+    if (!user || !newName.trim()) return;
+
     const { error } = await supabase.from('projects').insert({
       name: newName,
       description: newDesc,
-      user_id: userId,
+      user_id: user.id,
     });
+
     if (!error) {
       setNewName('');
       setNewDesc('');
       fetchProjects();
     }
-  };
-
-  const deleteProject = async (id: string) => {
-    await supabase.from('projects').delete().eq('id', id);
-    fetchProjects();
   };
 
   return (
@@ -86,25 +73,14 @@ export default function ProjectsColumn({
       </div>
 
       <ul className="space-y-2">
-        {projects.map((proj) => (
+        {projects.map((project) => (
           <li
-            key={proj.id}
-            className="flex justify-between items-center bg-[#1b263b] p-3 rounded hover:bg-[#415a77] cursor-pointer"
-            onClick={() => onSelectProject(proj.id)}
+            key={project.id}
+            className="bg-[#1b263b] p-3 rounded hover:bg-[#415a77] cursor-pointer"
+            onClick={() => onSelectProject(project.id)}
           >
-            <div>
-              <p className="font-semibold">{proj.name}</p>
-              <p className="text-sm text-[#e0e1dd99]">{proj.description}</p>
-            </div>
-            <button
-              className="text-red-400 hover:text-red-600 ml-2"
-              onClick={(e) => {
-                e.stopPropagation();
-                deleteProject(proj.id);
-              }}
-            >
-              ✕
-            </button>
+            <p className="font-semibold">{project.name}</p>
+            <p className="text-sm text-[#e0e1dd99]">{project.description}</p>
           </li>
         ))}
       </ul>

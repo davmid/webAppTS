@@ -7,19 +7,31 @@ import TaskDetail from '../components/TaskDetail';
 
 export default function Dashboard() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [selectedProject, setSelectedProject] = useState<number | null>(null);
-  const [selectedStory, setSelectedStory] = useState<number | null>(null);
-  const [selectedTask, setSelectedTask] = useState<number | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [selectedProject, setSelectedProject] = useState<string | null>(null);
+  const [selectedStory, setSelectedStory] = useState<string | null>(null);
+  const [selectedTask, setSelectedTask] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchUser = async () => {
       const { data, error } = await supabase.auth.getUser();
-      if (!error && data?.user?.email) {
-        setUserEmail(data.user.email);
+      if (error || !data?.user) {
+        console.error('User fetch error:', error?.message);
+      } else {
+        setUserEmail(data.user.email ?? null);
+        setUserId(data.user.id ?? null);
       }
     };
     fetchUser();
   }, []);
+
+  if (!userId) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0d1b2a] text-[#e0e1dd]">
+        <p className="text-lg">Loading your projects...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-[#0d1b2a] text-[#e0e1dd]">
@@ -43,6 +55,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-4 gap-4 h-full">
           <div className="col-span-1 bg-[#1b263b] p-4 rounded shadow overflow-y-auto">
             <ProjectsColumn
+              userId={userId}
               onSelectProject={(id) => {
                 setSelectedProject(id);
                 setSelectedStory(null);
@@ -55,7 +68,7 @@ export default function Dashboard() {
             <div className="col-span-1 bg-[#1b263b] p-4 rounded shadow overflow-y-auto">
               <StoriesColumn
                 projectId={selectedProject}
-                onSelectStory={(id) => {
+                onSelectStory={(id: string) => {
                   setSelectedStory(id);
                   setSelectedTask(null);
                 }}
@@ -67,7 +80,7 @@ export default function Dashboard() {
             <div className="col-span-1 bg-[#1b263b] p-4 rounded shadow overflow-y-auto">
               <TasksColumn
                 storyId={selectedStory}
-                onSelectTask={setSelectedTask}
+                onSelectTask={(id: string) => setSelectedTask(id)}
               />
             </div>
           )}

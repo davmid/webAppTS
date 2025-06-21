@@ -2,23 +2,25 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 
 interface Task {
-  id: number;
-  title: string;
-  detail?: string;
-  status: 'todo' | 'doing' | 'done';
-  story_id: number;
+  id: string;
+  name: string;
+  description?: string;
+  story_id: string;
+  priority?: string;
+  state?: string;
+  estimated_hours?: number;
+  worked_hours?: number;
 }
 
-export default function TasksColumn({
-  storyId,
-  onSelectTask,
-}: {
-  storyId: number;
-  onSelectTask: (id: number) => void;
-}) {
+interface TasksColumnProps {
+  storyId: string;
+  onSelectTask: (id: string) => void;
+}
+
+export default function TasksColumn({ storyId, onSelectTask }: TasksColumnProps) {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [title, setTitle] = useState('');
-  const [detail, setDetail] = useState('');
+  const [newName, setNewName] = useState('');
+  const [newDesc, setNewDesc] = useState('');
 
   const fetchTasks = async () => {
     const { data, error } = await supabase
@@ -33,41 +35,53 @@ export default function TasksColumn({
   }, [storyId]);
 
   const addTask = async () => {
-    if (!title.trim()) return;
-    const { error } = await supabase.from('tasks').insert({
-      title,
-      detail,
-      status: 'todo',
-      story_id: storyId,
-    });
-    if (!error) {
-      setTitle('');
-      setDetail('');
-      fetchTasks();
-    }
-  };
+  if (!newName.trim()) return;
 
-  const deleteTask = async (id: number) => {
+  const { data: sessionData, error: sessionError } = await supabase.auth.getUser();
+  if (sessionError || !sessionData?.user) {
+    console.error('User fetch error:', sessionError?.message);
+    return;
+  }
+
+  const { error } = await supabase
+    .from('tasks')
+    .insert({
+      name: newName,
+      description: newDesc,
+      story_id: storyId,
+      user_id: sessionData.user.id
+    });
+
+  if (!error) {
+    setNewName('');
+    setNewDesc('');
+    fetchTasks();
+  } else {
+    console.error('Add task error:', error.message);
+  }
+};
+
+
+  const deleteTask = async (id: string) => {
     await supabase.from('tasks').delete().eq('id', id);
     fetchTasks();
   };
 
   return (
-    <div className="bg-[#0d1b2a] text-[#e0e1dd] p-4 w-full max-w-md rounded shadow">
-      <h2 className="text-xl font-bold mb-4">Tasks</h2>
-
-      <div className="space-y-2 mb-6">
+    <div>
+      <h2 className="text-lg font-semibold mb-2">Tasks</h2>
+      <div className="space-y-2 mb-4">
         <input
           className="w-full p-2 rounded bg-[#1b263b] border border-[#415a77] focus:outline-none"
           placeholder="Task title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          value={newName}
+          onChange={(e) => setNewName(e.target.value)}
         />
         <input
           className="w-full p-2 rounded bg-[#1b263b] border border-[#415a77] focus:outline-none"
-          placeholder="Detail"
-          value={detail}
-          onChange={(e) => setDetail(e.target.value)}
+          placeholder="Description"
+          value={newDesc}
+          onChange={(e) => setNewDesc(e.target.value)}
         />
         <button
           className="w-full bg-[#415a77] hover:bg-[#324960] text-white py-2 rounded font-semibold"
@@ -84,8 +98,8 @@ export default function TasksColumn({
             className="flex justify-between items-center bg-[#1b263b] p-3 rounded hover:bg-[#415a77] cursor-pointer"
           >
             <div onClick={() => onSelectTask(task.id)}>
-              <p className="font-semibold">{task.title}</p>
-              <p className="text-sm text-[#e0e1dd99]">{task.detail}</p>
+              <p className="font-semibold">{task.name}</p>
+              <p className="text-sm text-[#e0e1dd99]">{task.description}</p>
             </div>
             <button
               className="text-red-400 hover:text-red-600 ml-2"

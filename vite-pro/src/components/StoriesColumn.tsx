@@ -33,16 +33,32 @@ export default function StoriesColumn({
   }, [projectId]);
 
   const addStory = async () => {
-    if (!newName.trim()) return;
-    const { error } = await supabase
-      .from('stories')
-      .insert({ name: newName, description: newDesc, project_id: projectId });
-    if (!error) {
-      setNewName('');
-      setNewDesc('');
-      fetchStories();
-    }
-  };
+  if (!newName.trim()) return;
+
+  const { data: sessionData, error: sessionError } = await supabase.auth.getUser();
+  if (sessionError || !sessionData?.user) {
+    console.error('User fetch error:', sessionError?.message);
+    return;
+  }
+
+  const { error } = await supabase
+    .from('stories')
+    .insert({
+      name: newName,
+      description: newDesc,
+      project_id: projectId,
+      user_id: sessionData.user.id // DODANE
+    });
+
+  if (!error) {
+    setNewName('');
+    setNewDesc('');
+    fetchStories();
+  } else {
+    console.error('Add story error:', error.message);
+  }
+};
+
 
   const deleteStory = async (id: string) => {
     await supabase.from('stories').delete().eq('id', id);

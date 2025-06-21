@@ -12,6 +12,34 @@ export default function TaskDetail({ taskId, onClose, onDeleteTask }: TaskDetail
   const [task, setTask] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  const addTask = async () => {
+  if (!newName.trim()) return;
+
+  const { data: sessionData, error: sessionError } = await supabase.auth.getUser();
+  if (sessionError || !sessionData?.user) {
+    console.error('User fetch error:', sessionError?.message);
+    return;
+  }
+
+  const { error } = await supabase
+    .from('tasks')
+    .insert({
+      name: newName,
+      description: newDesc,
+      story_id: storyId,
+      user_id: sessionData.user.id // <- TO JEST KLUCZOWE!
+    });
+
+  if (!error) {
+    setNewName('');
+    setNewDesc('');
+    fetchTasks();
+  } else {
+    console.error('Add task error:', error.message);
+  }
+};
+
+
   const fetchTask = async () => {
     setLoading(true);
     const { data, error } = await supabase.from('tasks').select('*').eq('id', taskId).single();

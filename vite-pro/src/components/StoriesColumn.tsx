@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 
@@ -12,9 +11,11 @@ interface Story {
 export default function StoriesColumn({
   projectId,
   onSelectStory,
+  selectedStory,
 }: {
   projectId: string;
   onSelectStory: (id: string) => void;
+  selectedStory: string | null;
 }) {
   const [stories, setStories] = useState<Story[]>([]);
   const [newName, setNewName] = useState('');
@@ -33,32 +34,31 @@ export default function StoriesColumn({
   }, [projectId]);
 
   const addStory = async () => {
-  if (!newName.trim()) return;
+    if (!newName.trim()) return;
 
-  const { data: sessionData, error: sessionError } = await supabase.auth.getUser();
-  if (sessionError || !sessionData?.user) {
-    console.error('User fetch error:', sessionError?.message);
-    return;
-  }
+    const { data: sessionData, error: sessionError } = await supabase.auth.getUser();
+    if (sessionError || !sessionData?.user) {
+      console.error('User fetch error:', sessionError?.message);
+      return;
+    }
 
-  const { error } = await supabase
-    .from('stories')
-    .insert({
-      name: newName,
-      description: newDesc,
-      project_id: projectId,
-      user_id: sessionData.user.id // DODANE
-    });
+    const { error } = await supabase
+      .from('stories')
+      .insert({
+        name: newName,
+        description: newDesc,
+        project_id: projectId,
+        user_id: sessionData.user.id,
+      });
 
-  if (!error) {
-    setNewName('');
-    setNewDesc('');
-    fetchStories();
-  } else {
-    console.error('Add story error:', error.message);
-  }
-};
-
+    if (!error) {
+      setNewName('');
+      setNewDesc('');
+      fetchStories();
+    } else {
+      console.error('Add story error:', error.message);
+    }
+  };
 
   const deleteStory = async (id: string) => {
     await supabase.from('stories').delete().eq('id', id);
@@ -93,15 +93,21 @@ export default function StoriesColumn({
         {stories.map((story) => (
           <li
             key={story.id}
-            className="flex justify-between items-center bg-[#1b263b] p-3 rounded hover:bg-[#415a77] cursor-pointer"
+            className={`flex justify-between items-center p-3 rounded cursor-pointer ${
+              selectedStory === story.id ? 'bg-[#415a77]' : 'bg-[#1b263b] hover:bg-[#415a77]'
+            }`}
+            onClick={() => onSelectStory(story.id)}
           >
-            <div onClick={() => onSelectStory(story.id)}>
+            <div>
               <p className="font-semibold">{story.name}</p>
               <p className="text-sm text-[#e0e1dd99]">{story.description}</p>
             </div>
             <button
               className="text-red-400 hover:text-red-600 ml-2"
-              onClick={() => deleteStory(story.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                deleteStory(story.id);
+              }}
             >
               ✕
             </button>

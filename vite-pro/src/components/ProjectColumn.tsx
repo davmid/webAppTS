@@ -10,9 +10,10 @@ interface Project {
 interface ProjectsColumnProps {
   userId: string;
   onSelectProject: (id: string) => void;
+  selectedProject: string | null;
 }
 
-export default function ProjectsColumn({ userId, onSelectProject }: ProjectsColumnProps) {
+export default function ProjectsColumn({ userId, onSelectProject, selectedProject }: ProjectsColumnProps) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [newName, setNewName] = useState('');
   const [newDesc, setNewDesc] = useState('');
@@ -48,6 +49,11 @@ export default function ProjectsColumn({ userId, onSelectProject }: ProjectsColu
     }
   };
 
+  const deleteProject = async (id: string) => {
+    await supabase.from('projects').delete().eq('id', id);
+    fetchProjects();
+  };
+
   return (
     <div>
       <h2 className="text-lg font-semibold mb-2">Projects</h2>
@@ -76,11 +82,23 @@ export default function ProjectsColumn({ userId, onSelectProject }: ProjectsColu
         {projects.map((project) => (
           <li
             key={project.id}
-            className="bg-[#1b263b] p-3 rounded hover:bg-[#415a77] cursor-pointer"
+            className={`flex justify-between items-center p-3 rounded cursor-pointer ${selectedProject === project.id ? 'bg-[#415a77]' : 'bg-[#1b263b]'
+              } hover:bg-[#324960] text-white`}
             onClick={() => onSelectProject(project.id)}
           >
-            <p className="font-semibold">{project.name}</p>
-            <p className="text-sm text-[#e0e1dd99]">{project.description}</p>
+            <div>
+              <p className="font-semibold">{project.name}</p>
+              <p className="text-sm text-[#e0e1dd99]">{project.description}</p>
+            </div>
+            <button
+              className="text-red-400 hover:text-red-600 ml-2 px-2 py-1 rounded bg-[#0d1b2a]"
+              onClick={(e) => {
+                e.stopPropagation();
+                deleteProject(project.id);
+              }}
+            >
+              ✕
+            </button>
           </li>
         ))}
       </ul>

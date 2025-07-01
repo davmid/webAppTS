@@ -32,7 +32,6 @@ class TaskService {
     return this.getAll().filter(t => t.storyId === storyId);
   }
 
-  // 🆕 Dodaj to:
   static getById(id: string): Task | undefined {
     return this.getAll().find(t => t.id === id);
   }

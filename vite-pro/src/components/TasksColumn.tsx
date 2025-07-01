@@ -5,7 +5,7 @@ interface Task {
   id: string;
   name: string;
   description?: string;
-  story_id: string;
+  storyId: string;
   priority?: string;
   state?: string;
   estimated_hours?: number;
@@ -14,10 +14,12 @@ interface Task {
 
 interface TasksColumnProps {
   storyId: string;
+  userId: string;
   onSelectTask: (id: string) => void;
+  onTaskAdded: () => void;
 }
 
-export default function TasksColumn({ storyId, onSelectTask }: TasksColumnProps) {
+export default function TasksColumn({ storyId, userId, onSelectTask, onTaskAdded }: TasksColumnProps) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newName, setNewName] = useState('');
   const [newDesc, setNewDesc] = useState('');
@@ -35,32 +37,26 @@ export default function TasksColumn({ storyId, onSelectTask }: TasksColumnProps)
   }, [storyId]);
 
   const addTask = async () => {
-  if (!newName.trim()) return;
+    if (!newName.trim()) return;
 
-  const { data: sessionData, error: sessionError } = await supabase.auth.getUser();
-  if (sessionError || !sessionData?.user) {
-    console.error('User fetch error:', sessionError?.message);
-    return;
-  }
+    const { error } = await supabase
+      .from('tasks')
+      .insert({
+        name: newName,
+        description: newDesc,
+        story_id: storyId,
+        user_id: userId,
+      });
 
-  const { error } = await supabase
-    .from('tasks')
-    .insert({
-      name: newName,
-      description: newDesc,
-      story_id: storyId,
-      user_id: sessionData.user.id
-    });
-
-  if (!error) {
-    setNewName('');
-    setNewDesc('');
-    fetchTasks();
-  } else {
-    console.error('Add task error:', error.message);
-  }
-};
-
+    if (!error) {
+      setNewName('');
+      setNewDesc('');
+      fetchTasks();
+      onTaskAdded();
+    } else {
+      console.error('Add task error:', error.message);
+    }
+  };
 
   const deleteTask = async (id: string) => {
     await supabase.from('tasks').delete().eq('id', id);

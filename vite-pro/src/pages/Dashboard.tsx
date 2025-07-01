@@ -76,7 +76,9 @@ export default function Dashboard() {
       .eq('user_id', userId);
 
     if (!error) {
-      fetchTasks();
+      setTasks(prev =>
+        prev.map(t => (t.id === taskId ? { ...t, state: newState } : t))
+      );
     } else {
       console.error('Update task error:', error.message);
     }
@@ -146,6 +148,7 @@ export default function Dashboard() {
                 key={task.id}
                 draggable
                 onDragStart={(e) => onDragStart(e, task.id)}
+                onClick={() => setSelectedTask(task.id)}
                 className="p-2 bg-[#415a77] text-white rounded cursor-move"
               >
                 {task.name}

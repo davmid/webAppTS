@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
-import { TaskState, TaskPriority } from '../models/Task';
 
 interface TaskDetailProps {
   taskId: string;
@@ -10,51 +9,26 @@ interface TaskDetailProps {
 
 export default function TaskDetail({ taskId, onClose, onDeleteTask }: TaskDetailProps) {
   const [task, setTask] = useState<any>(null);
+  const [formTask, setFormTask] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-
-  const addTask = async () => {
-  if (!newName.trim()) return;
-
-  const { data: sessionData, error: sessionError } = await supabase.auth.getUser();
-  if (sessionError || !sessionData?.user) {
-    console.error('User fetch error:', sessionError?.message);
-    return;
-  }
-
-  const { error } = await supabase
-    .from('tasks')
-    .insert({
-      name: newName,
-      description: newDesc,
-      story_id: storyId,
-      user_id: sessionData.user.id // <- TO JEST KLUCZOWE!
-    });
-
-  if (!error) {
-    setNewName('');
-    setNewDesc('');
-    fetchTasks();
-  } else {
-    console.error('Add task error:', error.message);
-  }
-};
-
+  const [saving, setSaving] = useState(false);
 
   const fetchTask = async () => {
     setLoading(true);
-    const { data, error } = await supabase.from('tasks').select('*').eq('id', taskId).single();
-    if (data) setTask(data);
+    const { data } = await supabase.from('tasks').select('*').eq('id', taskId).single();
+    if (data) {
+      setTask(data);
+      setFormTask(data);
+    }
     setLoading(false);
   };
 
-  const updateTask = async (field: string, value: any) => {
-    if (!task) return;
-    const { error } = await supabase
-      .from('tasks')
-      .update({ [field]: value })
-      .eq('id', task.id);
-
-    if (!error) fetchTask();
+  const saveChanges = async () => {
+    if (!formTask) return;
+    setSaving(true);
+    await supabase.from('tasks').update(formTask).eq('id', taskId);
+    setSaving(false);
+    fetchTask();
   };
 
   const deleteTask = async () => {
@@ -66,12 +40,12 @@ export default function TaskDetail({ taskId, onClose, onDeleteTask }: TaskDetail
     fetchTask();
   }, [taskId]);
 
-  if (loading || !task) return <div className="p-4 text-white">Loading...</div>;
+  if (loading || !formTask) return <div className="p-4 text-white">Loading...</div>;
 
   return (
     <div className="bg-[#0d1b2a] text-[#e0e1dd] p-6 rounded-xl shadow-lg w-full max-w-xl mx-auto">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">{task.name}</h2>
+        <h2 className="text-2xl font-bold">{formTask.name}</h2>
         <button onClick={onClose} className="text-sm text-gray-400">✖ Close</button>
       </div>
 
@@ -79,8 +53,8 @@ export default function TaskDetail({ taskId, onClose, onDeleteTask }: TaskDetail
         <div>
           <label className="block text-sm mb-1">Description</label>
           <textarea
-            value={task.description || ''}
-            onChange={(e) => updateTask('description', e.target.value)}
+            value={formTask.description || ''}
+            onChange={(e) => setFormTask({ ...formTask, description: e.target.value })}
             className="w-full p-2 rounded bg-[#1b263b] border border-[#415a77]"
           />
         </div>
@@ -89,8 +63,8 @@ export default function TaskDetail({ taskId, onClose, onDeleteTask }: TaskDetail
           <div>
             <label className="block text-sm mb-1">State</label>
             <select
-              value={task.state}
-              onChange={(e) => updateTask('state', e.target.value)}
+              value={formTask.state || ''}
+              onChange={(e) => setFormTask({ ...formTask, state: e.target.value })}
               className="bg-[#1b263b] p-2 rounded border border-[#415a77]"
             >
               <option value="todo">To Do</option>
@@ -102,8 +76,8 @@ export default function TaskDetail({ taskId, onClose, onDeleteTask }: TaskDetail
           <div>
             <label className="block text-sm mb-1">Priority</label>
             <select
-              value={task.priority}
-              onChange={(e) => updateTask('priority', e.target.value)}
+              value={formTask.priority || ''}
+              onChange={(e) => setFormTask({ ...formTask, priority: e.target.value })}
               className="bg-[#1b263b] p-2 rounded border border-[#415a77]"
             >
               <option value="low">Low</option>
@@ -117,23 +91,32 @@ export default function TaskDetail({ taskId, onClose, onDeleteTask }: TaskDetail
           <label className="block text-sm mb-1">Estimated Hours</label>
           <input
             type="number"
-            value={task.estimated_hours || ''}
-            onChange={(e) => updateTask('estimated_hours', Number(e.target.value))}
+            value={formTask.estimated_hours || ''}
+            onChange={(e) => setFormTask({ ...formTask, estimated_hours: Number(e.target.value) })}
             className="w-full p-2 rounded bg-[#1b263b] border border-[#415a77]"
           />
         </div>
 
-        <div className="pt-4 flex justify-between">
+        <div className="pt-4 flex justify-between items-center">
           <button
             onClick={deleteTask}
             className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-white"
           >
             Delete Task
           </button>
-          <span className="text-sm text-gray-400 self-center">
-            Created: {new Date(task.created_at).toLocaleString()}
-          </span>
+
+          <button
+            onClick={saveChanges}
+            disabled={saving}
+            className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded text-white"
+          >
+            {saving ? 'Saving...' : 'Save Changes'}
+          </button>
         </div>
+
+        <span className="text-sm text-gray-400">
+          Created: {new Date(task.created_at).toLocaleString()}
+        </span>
       </div>
     </div>
   );

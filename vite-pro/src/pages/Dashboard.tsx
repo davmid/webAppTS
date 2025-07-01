@@ -5,6 +5,7 @@ import StoriesColumn from '../components/StoriesColumn';
 import TasksColumn from '../components/TasksColumn';
 import TaskDetail from '../components/TaskDetail';
 import Sidebar from '../components/Sidebar';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface Task {
   id: string;
@@ -24,24 +25,41 @@ interface Task {
 const columns: Task['state'][] = ['todo', 'doing', 'done'];
 
 export default function Dashboard() {
+  const { theme, toggleTheme } = useTheme();
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const [selectedStory, setSelectedStory] = useState<string | null>(null);
   const [selectedTask, setSelectedTask] = useState<string | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const { data, error } = await supabase.auth.getUser();
-      if (error || !data?.user) {
-        console.error('User fetch error:', error?.message);
-      } else {
-        setUserEmail(data.user.email ?? null);
-        setUserId(data.user.id ?? null);
+    const fetchUserAndProfile = async () => {
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      if (userError || !userData?.user) {
+        console.error('User fetch error:', userError?.message);
+        return;
+      }
+
+      setUserEmail(userData.user.email ?? null);
+      setUserId(userData.user.id ?? null);
+
+      const { data: profileData, error: profileError } = await supabase
+        .from('users')
+        .select('name, role')
+        .eq('user_id', userData.user.id)
+        .single();
+
+      if (profileError) {
+        console.error('Profile fetch error:', profileError.message);
+      } else if (profileData) {
+        setUserName(profileData.name ?? null);
+        setUserRole(profileData.role ?? null);
       }
     };
-    fetchUser();
+    fetchUserAndProfile();
   }, []);
 
   useEffect(() => {
@@ -99,13 +117,23 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#0d1b2a] text-[#e0e1dd] flex">
+    <div className="w-full min-h-screen bg-gray-100 text-gray-900 dark:bg-[#0d1b2a] dark:text-[#e0e1dd] flex transition-colors duration-300">
       <Sidebar selectedProject={selectedProject} onSelectProject={setSelectedProject} />
 
       <main className="flex-1 p-6">
         <div className="flex justify-between items-center mb-6 w-full">
-          <h1 className="text-2xl font-bold">Welcome, {userEmail}</h1>
-          <button onClick={handleLogout} className="bg-red-600 px-4 py-2 rounded">Logout</button>
+          <h1 className="text-2xl font-bold">
+            Welcome, {userName || userEmail}{userRole ? ` (${userRole})` : ''}
+          </h1>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={toggleTheme}
+              className="px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors duration-300"
+            >
+              {theme === 'light' ? 'Tryb Ciemny' : 'Tryb Jasny'}
+            </button>
+            <button onClick={handleLogout} className="bg-red-600 px-4 py-2 rounded">Logout</button>
+          </div>
         </div>
 
         <div className="flex gap-6 w-full mb-10">
@@ -140,7 +168,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <h2 className="text-xl font-bold mb-2">Backlog</h2>
+        <h2 className="text-xl font-bold mb-2 text-gray-900 dark:text-[#e0e1dd]">Backlog</h2>
         <div className="flex flex-wrap gap-2 mb-8 w-full min-h-[60px]">
           {tasks.filter(task => !task.state).length > 0 ? (
             tasks.filter(task => !task.state).map(task => (
@@ -149,7 +177,7 @@ export default function Dashboard() {
                 draggable
                 onDragStart={(e) => onDragStart(e, task.id)}
                 onClick={() => setSelectedTask(task.id)}
-                className="p-2 bg-[#415a77] text-white rounded cursor-move"
+                className="p-2 bg-blue-500 text-white rounded cursor-move hover:bg-blue-600 transition-colors duration-300"
               >
                 {task.name}
               </div>
@@ -159,14 +187,14 @@ export default function Dashboard() {
           )}
         </div>
 
-        <h2 className="text-xl font-bold mb-4">Kanban Board</h2>
+        <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-[#e0e1dd]">Kanban Board</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
           {columns.map(col => (
             <div
               key={col}
               onDrop={(e) => onDrop(e, col)}
               onDragOver={(e) => e.preventDefault()}
-              className="p-4 bg-[#1b263b] rounded min-h-[250px] text-white"
+              className="p-4 bg-gray-200 dark:bg-gray-700 rounded min-h-[250px] text-gray-900 dark:text-gray-100 transition-colors duration-300"
             >
               <h3 className="text-lg font-semibold mb-3 capitalize">{col}</h3>
               {tasks.filter(t => t.state === col).map(task => (
@@ -175,7 +203,7 @@ export default function Dashboard() {
                   draggable
                   onDragStart={(e) => onDragStart(e, task.id)}
                   onClick={() => setSelectedTask(task.id)}
-                  className="bg-[#415a77] p-3 rounded mb-3 cursor-move"
+                  className="bg-blue-500 p-3 rounded mb-3 cursor-move text-white hover:bg-blue-600 transition-colors duration-300"
                 >
                   {task.name}
                 </div>
@@ -183,18 +211,25 @@ export default function Dashboard() {
             </div>
           ))}
         </div>
-
-        {selectedTask && (
-          <TaskDetail
-            taskId={selectedTask}
-            onClose={() => setSelectedTask(null)}
-            onDeleteTask={() => {
-              fetchTasks();
-              setSelectedTask(null);
-            }}
-          />
-        )}
       </main>
+
+      {selectedTask && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-100 p-20"
+          onClick={() => setSelectedTask(null)}
+        >
+          <div className="relative" onClick={(e) => e.stopPropagation()}>
+            <TaskDetail
+              taskId={selectedTask}
+              onClose={() => setSelectedTask(null)}
+              onDeleteTask={() => {
+                fetchTasks();
+                setSelectedTask(null);
+              }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

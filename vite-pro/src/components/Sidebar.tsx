@@ -21,6 +21,10 @@ export default function Sidebar({ selectedProject, onSelectProject }: SidebarPro
     if (!error) setProjects(data);
   };
 
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
   const addProject = async () => {
     if (!newProjectName.trim()) return;
     const { data, error } = await supabase
@@ -35,21 +39,19 @@ export default function Sidebar({ selectedProject, onSelectProject }: SidebarPro
     }
   };
 
-  useEffect(() => {
-    fetchProjects();
-  }, []);
-
   return (
-    <aside className="w-64 bg-[#0d1b2a] text-[#e0e1dd] p-4 border-r border-[#415a77]">
+    <aside className="w-64 bg-gray-800 text-gray-100 p-4 border-r border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:border-gray-700 transition-colors duration-300">
       <h2 className="text-lg font-semibold mb-4">Projekty</h2>
 
       <ul className="space-y-2 mb-6">
         {projects.map((project) => (
           <li key={project.id}>
             <button
-              className={`w-full text-left px-3 py-2 rounded hover:bg-[#1b263b] ${
-                selectedProject === project.id ? 'bg-[#415a77]' : ''
-              }`}
+              className={`w-full text-left px-3 py-2 rounded transition-colors duration-300
+                ${selectedProject === project.id
+                  ? 'bg-blue-600 text-white dark:bg-blue-700'
+                  : 'bg-gray-700 text-gray-100 hover:bg-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700'
+                }`}
               onClick={() => onSelectProject(project.id)}
             >
               {project.name}
@@ -65,12 +67,12 @@ export default function Sidebar({ selectedProject, onSelectProject }: SidebarPro
             placeholder="Nazwa projektu"
             value={newProjectName}
             onChange={(e) => setNewProjectName(e.target.value)}
-            className="w-full p-2 rounded bg-[#1b263b] border border-[#415a77] text-sm"
+            className="w-full p-2 rounded bg-gray-700 border border-gray-600 text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100 transition-colors duration-300"
           />
           <div className="flex justify-between">
             <button
               onClick={addProject}
-              className="bg-[#415a77] hover:bg-[#324960] px-3 py-1 rounded text-sm"
+              className="bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors duration-300"
             >
               Dodaj
             </button>
@@ -79,7 +81,7 @@ export default function Sidebar({ selectedProject, onSelectProject }: SidebarPro
                 setAdding(false);
                 setNewProjectName('');
               }}
-              className="text-sm text-gray-400 hover:text-red-400"
+              className="text-sm text-gray-400 hover:text-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition-colors duration-300"
             >
               Anuluj
             </button>
@@ -88,7 +90,7 @@ export default function Sidebar({ selectedProject, onSelectProject }: SidebarPro
       ) : (
         <button
           onClick={() => setAdding(true)}
-          className="w-full text-sm py-2 rounded bg-[#1b263b] hover:bg-[#415a77]"
+          className="w-full text-sm py-2 rounded bg-gray-700 text-gray-100 hover:bg-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors duration-300"
         >
           ➕ Dodaj projekt
         </button>

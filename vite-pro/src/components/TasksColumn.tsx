@@ -5,11 +5,12 @@ interface Task {
   id: string;
   name: string;
   description?: string;
-  storyId: string;
+  story_id: string;
   priority?: string;
   state?: string;
   estimated_hours?: number;
   worked_hours?: number;
+  assigned_to?: string;
 }
 
 interface TasksColumnProps {
@@ -65,22 +66,22 @@ export default function TasksColumn({ storyId, userId, onSelectTask, onTaskAdded
 
   return (
     <div>
-      <h2 className="text-lg font-semibold mb-2">Tasks</h2>
+      <h2 className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-100">Tasks</h2>
       <div className="space-y-2 mb-4">
         <input
-          className="w-full p-2 rounded bg-[#1b263b] border border-[#415a77] focus:outline-none"
+          className="w-full p-2 rounded bg-gray-200 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-300"
           placeholder="Task title"
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
         />
         <input
-          className="w-full p-2 rounded bg-[#1b263b] border border-[#415a77] focus:outline-none"
+          className="w-full p-2 rounded bg-gray-200 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-300"
           placeholder="Description"
           value={newDesc}
           onChange={(e) => setNewDesc(e.target.value)}
         />
         <button
-          className="w-full bg-[#415a77] hover:bg-[#324960] text-white py-2 rounded font-semibold"
+          className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors duration-300"
           onClick={addTask}
         >
           Add Task
@@ -91,14 +92,14 @@ export default function TasksColumn({ storyId, userId, onSelectTask, onTaskAdded
         {tasks.map((task) => (
           <li
             key={task.id}
-            className="flex justify-between items-center bg-[#1b263b] p-3 rounded hover:bg-[#415a77] cursor-pointer"
+            className="flex justify-between items-center p-3 rounded cursor-pointer bg-gray-200 text-gray-900 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600 transition-colors duration-300"
           >
             <div onClick={() => onSelectTask(task.id)}>
               <p className="font-semibold">{task.name}</p>
-              <p className="text-sm text-[#e0e1dd99]">{task.description}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{task.description}</p>
             </div>
             <button
-              className="text-red-400 hover:text-red-600 ml-2"
+              className="text-red-500 hover:text-red-700 ml-2 px-2 py-1 rounded bg-transparent dark:bg-transparent focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition-colors duration-300"
               onClick={() => deleteTask(task.id)}
             >
               ✕

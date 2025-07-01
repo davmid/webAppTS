@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 export default function Login() {
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [role, setRole] = useState('developer'); // domyślna rola
   const [error, setError] = useState('');
   const [isLoginMode, setIsLoginMode] = useState(true);
   const navigate = useNavigate();
@@ -17,6 +19,7 @@ export default function Login() {
         email: login,
         password,
       });
+
       if (error) {
         setError('Nieprawidłowe dane logowania');
       } else {
@@ -26,15 +29,31 @@ export default function Login() {
       const { data, error } = await supabase.auth.signUp({
         email: login,
         password,
+        options: {
+          emailRedirectTo: 'http://localhost:5173/dashboard',
+        },
       });
+
       if (error) {
         setError('Błąd rejestracji: ' + error.message);
       } else {
-        await supabase.from('users').insert({
-          id: data.user?.id,
-          username: login,
-          role: 'user',
-        });
+        const userId = data.user?.id;
+        const email = data.user?.email;
+
+        if (userId && email) {
+          const { error: insertError } = await supabase.from('users').insert({
+            user_id: userId,
+            email: email,
+            name: name,
+            role: role,
+            created_at: new Date().toISOString(),
+          });
+
+          if (insertError) {
+            console.error('Błąd dodawania do tabeli users:', insertError.message);
+          }
+        }
+
         navigate('/dashboard');
       }
     }
@@ -46,6 +65,18 @@ export default function Login() {
         <h2 className="text-3xl font-bold mb-8 text-center">
           {isLoginMode ? 'Zaloguj się' : 'Zarejestruj się'}
         </h2>
+
+        {!isLoginMode && (
+          <>
+            <label className="block mb-2 text-sm">Imię</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full p-3 mb-5 rounded bg-[#0d1b2a] border border-[#415a77] focus:outline-none"
+            />
+          </>
+        )}
 
         <label className="block mb-2 text-sm">Email</label>
         <input

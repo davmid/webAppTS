@@ -59,12 +59,14 @@ export default function ProjectsColumn({ userId, onSelectProject, selectedProjec
       <h2 className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-100">Projects</h2>
       <div className="space-y-2 mb-4">
         <input
+          data-testid="project-name"
           className="w-full p-2 rounded bg-gray-200 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-300"
           placeholder="Project name"
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
         />
         <input
+          data-testid="project-description"
           className="w-full p-2 rounded bg-gray-200 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-300"
           placeholder="Description"
           value={newDesc}
@@ -90,7 +92,7 @@ export default function ProjectsColumn({ userId, onSelectProject, selectedProjec
               hover:bg-blue-300 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-gray-100`}
             onClick={() => onSelectProject(project.id)}
           >
-            <div>
+            <div data-testId="project-list">
               <p className="font-semibold">{project.name}</p>
               <p className="text-sm text-gray-600 dark:text-gray-400">{project.description}</p>
             </div>

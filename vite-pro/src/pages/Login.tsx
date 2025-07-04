@@ -53,9 +53,8 @@ export default function Login() {
             console.error('Błąd dodawania do tabeli users:', insertError.message);
           }
         }
-
-        navigate('/dashboard');
       }
+      navigate('/dashboard');
     }
   };
 
@@ -70,6 +69,7 @@ export default function Login() {
           <>
             <label className="block mb-2 text-sm">Imię</label>
             <input
+              data-testid="name-input"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -80,6 +80,7 @@ export default function Login() {
 
         <label className="block mb-2 text-sm">Email</label>
         <input
+          data-testid="email-input"
           type="text"
           value={login}
           onChange={(e) => setLogin(e.target.value)}
@@ -88,6 +89,7 @@ export default function Login() {
 
         <label className="block mb-2 text-sm">Hasło</label>
         <input
+          data-testid="password-input"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}

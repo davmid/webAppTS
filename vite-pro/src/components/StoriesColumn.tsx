@@ -70,12 +70,14 @@ export default function StoriesColumn({
       <h2 className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-100">Stories</h2>
       <div className="space-y-2 mb-4">
         <input
+          data-testid="story-name"
           className="w-full p-2 rounded bg-gray-200 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-300"
           placeholder="Story title"
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
         />
         <input
+          data-testid="story-description"
           className="w-full p-2 rounded bg-gray-200 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-300"
           placeholder="Description"
           value={newDesc}

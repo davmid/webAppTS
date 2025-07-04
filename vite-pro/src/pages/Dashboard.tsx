@@ -175,11 +175,12 @@ export default function Dashboard() {
           {tasks.filter(task => !task.state).length > 0 ? (
             tasks.filter(task => !task.state).map(task => (
               <div
+                data-testId="task-backlog"
                 key={task.id}
                 draggable
                 onDragStart={(e) => onDragStart(e, task.id)}
                 onClick={() => setSelectedTask(task.id)}
-                className="p-2 bg-blue-500 text-white rounded cursor-move hover:bg-blue-600 transition-colors duration-300"
+                className="px-8 py-4 bg-blue-500 text-white rounded cursor-move hover:bg-blue-600 transition-colors duration-300"
               >
                 {task.name}
               </div>

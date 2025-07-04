@@ -92,7 +92,7 @@ export default function Sidebar({ selectedProject, onSelectProject }: SidebarPro
           onClick={() => setAdding(true)}
           className="w-full text-sm py-2 rounded bg-gray-700 text-gray-100 hover:bg-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors duration-300"
         >
-          ➕ Add Project
+          ➕ Add
         </button>
       )}
     </aside>

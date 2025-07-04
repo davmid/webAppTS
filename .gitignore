@@ -47,3 +47,9 @@ supabase/.dev/
 # node_modules in subdirectories
 vite-pro/node_modules/
 miniapi/node_modules/
+
+# Playwright
+/vite-pro/test-results/
+/vite-pro/playwright-report/
+/vite-pro/blob-report/
+/vite-pro/playwright/.cache/

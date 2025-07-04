@@ -41,7 +41,7 @@ export default function Sidebar({ selectedProject, onSelectProject }: SidebarPro
 
   return (
     <aside className="w-64 bg-gray-800 text-gray-100 p-4 border-r border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:border-gray-700 transition-colors duration-300">
-      <h2 className="text-lg font-semibold mb-4">Projekty</h2>
+      <h2 className="text-lg font-semibold mb-4">Projects</h2>
 
       <ul className="space-y-2 mb-6">
         {projects.map((project) => (
@@ -74,7 +74,7 @@ export default function Sidebar({ selectedProject, onSelectProject }: SidebarPro
               onClick={addProject}
               className="bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors duration-300"
             >
-              Dodaj
+              Add
             </button>
             <button
               onClick={() => {
@@ -92,7 +92,7 @@ export default function Sidebar({ selectedProject, onSelectProject }: SidebarPro
           onClick={() => setAdding(true)}
           className="w-full text-sm py-2 rounded bg-gray-700 text-gray-100 hover:bg-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors duration-300"
         >
-          ➕ Dodaj projekt
+          ➕ Add Project
         </button>
       )}
     </aside>

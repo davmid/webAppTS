@@ -6,6 +6,7 @@ import TasksColumn from '../components/TasksColumn';
 import TaskDetail from '../components/TaskDetail';
 import Sidebar from '../components/Sidebar';
 import { useTheme } from '../contexts/ThemeContext';
+import { useNavigate } from 'react-router-dom';
 
 interface Task {
   id: string;
@@ -34,6 +35,7 @@ export default function Dashboard() {
   const [selectedStory, setSelectedStory] = useState<string | null>(null);
   const [selectedTask, setSelectedTask] = useState<string | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserAndProfile = async () => {
@@ -113,7 +115,7 @@ export default function Dashboard() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    window.location.reload();
+    navigate('/login');
   };
 
   return (
@@ -130,7 +132,7 @@ export default function Dashboard() {
               onClick={toggleTheme}
               className="px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors duration-300"
             >
-              {theme === 'light' ? 'Tryb Ciemny' : 'Tryb Jasny'}
+              {theme === 'light' ? 'Dark' : 'Light'}
             </button>
             <button onClick={handleLogout} className="bg-red-600 px-4 py-2 rounded">Logout</button>
           </div>
@@ -215,7 +217,7 @@ export default function Dashboard() {
 
       {selectedTask && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-100 p-20"
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
           onClick={() => setSelectedTask(null)}
         >
           <div className="relative" onClick={(e) => e.stopPropagation()}>
